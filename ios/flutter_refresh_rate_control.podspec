@@ -4,16 +4,17 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_refresh_rate_control'
-  s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.version          = '0.0.3+1'
+  s.summary          = 'A Flutter plugin that allows you to request high refresh rate mode on Android and iOS devices.'
   s.description      = <<-DESC
-A new Flutter plugin project.
+A Flutter plugin that allows you to request high refresh rate mode on Android and iOS devices.
+This plugin provides a simple API to attempt to enable the highest possible refresh rate for your Flutter application.
                        DESC
-  s.homepage         = 'http://example.com'
-  s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
-  s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.homepage         = 'http://zeyus.com'
+  s.license          = { :file => '../LICENSE', :type => 'MIT' }
+  s.author           = { 'Your Company' => 'dev@zeyus.com' }
+  s.source           = { :git => 'https://github.com/NexusDynamic/flutter_refresh_rate_control.git', :tag => s.version.to_s }
+  s.source_files = 'flutter_refresh_rate_control/Sources/flutter_refresh_rate_control/**/*.swift'
   s.dependency 'Flutter'
   s.platform = :ios, '13.0'
 
@@ -25,5 +26,5 @@ A new Flutter plugin project.
   # required reason APIs, update the PrivacyInfo.xcprivacy file to describe your
   # plugin's privacy impact, and then uncomment this line. For more information,
   # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
-  # s.resource_bundles = {'flutter_refresh_rate_control_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'flutter_refresh_rate_control_privacy' => ['flutter_refresh_rate_control/Sources/flutter_refresh_rate_control/PrivacyInfo.xcprivacy']}
 end

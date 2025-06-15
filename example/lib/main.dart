@@ -5,17 +5,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const FlutterRefreshRateControlExampleApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class FlutterRefreshRateControlExampleApp extends StatefulWidget {
+  const FlutterRefreshRateControlExampleApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<FlutterRefreshRateControlExampleApp> createState() =>
+      _FlutterRefreshRateControlExampleAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _FlutterRefreshRateControlExampleAppState
+    extends State<FlutterRefreshRateControlExampleApp> {
   String _platformVersion = 'Unknown';
   Map<String, dynamic> _refreshRateInfo = {};
   bool _isHighRefreshRate = false;

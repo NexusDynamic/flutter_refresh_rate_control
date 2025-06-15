@@ -1,5 +1,7 @@
 # flutter_refresh_rate_control
 
+![Pub Publisher](https://img.shields.io/pub/publisher/flutter_refresh_rate_control?style=flat-square) ![Pub Version](https://img.shields.io/pub/v/flutter_refresh_rate_control)
+
 A Flutter plugin that allows you to request high refresh rate mode on Android and iOS devices. This plugin provides a simple API to attempt to enable the highest possible refresh rate for your Flutter application.
 
 ## Platform Support
@@ -49,7 +51,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_refresh_rate_control: ^0.0.2
+  flutter_refresh_rate_control: ^0.0.3
 ```
 
 Then run:

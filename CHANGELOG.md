@@ -1,3 +1,8 @@
+# 0.0.3+1
+
+* Migrated to Swift Package Manager
+* Implemented `getPlatformVersion` method for iOS and Android
+
 # 0.0.2
 
 * Documentation fixes

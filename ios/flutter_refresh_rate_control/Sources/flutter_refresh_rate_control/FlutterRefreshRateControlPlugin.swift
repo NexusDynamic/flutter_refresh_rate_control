@@ -13,6 +13,8 @@ public class FlutterRefreshRateControlPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "getPlatformVersion":
+            getPlatformVersion(result: result)
         case "requestHighRefreshRate":
             requestHighRefreshRate(result: result)
         case "stopHighRefreshRate":
@@ -22,6 +24,10 @@ public class FlutterRefreshRateControlPlugin: NSObject, FlutterPlugin {
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+    
+    private func getPlatformVersion(result: @escaping FlutterResult) {
+        result("iOS " + UIDevice.current.systemVersion)
     }
     
     private func requestHighRefreshRate(result: @escaping FlutterResult) {

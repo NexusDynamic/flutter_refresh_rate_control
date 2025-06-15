@@ -1,6 +1,6 @@
 name: flutter_refresh_rate_control
 description: "A Flutter plugin that allows you to request high refresh rate mode on Android and iOS devices."
-version: 0.0.2
+version: 0.0.3+1
 homepage: https://zeyus.com/
 repository: https://github.com/NexusDynamic/flutter_refresh_rate_control
 

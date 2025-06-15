@@ -39,6 +39,9 @@ class FlutterRefreshRateControlPlugin :
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
+            "getPlatformVersion" -> {
+                result.success("Android ${Build.VERSION.RELEASE}")
+            }
             "requestHighRefreshRate" -> {
                 refreshRateManager?.requestHighRefreshRate(result) ?: result.error("NO_ACTIVITY", "Activity not available", null)
             }

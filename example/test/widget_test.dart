@@ -14,7 +14,7 @@ void main() {
     WidgetTester tester,
   ) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const FlutterRefreshRateControlExampleApp());
 
     // Wait for async operations to complete
     await tester.pumpAndSettle();

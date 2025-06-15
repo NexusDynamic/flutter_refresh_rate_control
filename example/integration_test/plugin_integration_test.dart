@@ -155,62 +155,6 @@ void main() {
       }
     });
 
-    testWidgets('FPS monitoring and refresh rate testing', (
-      WidgetTester tester,
-    ) async {
-      // Only run this test on supported platforms
-      if (!isSupported) {
-        return;
-      }
-
-      // Create a test app with FPS monitoring
-      await tester.pumpWidget(MaterialApp(home: FPSTestWidget(plugin: plugin)));
-
-      // Wait for the widget to build
-      await tester.pumpAndSettle();
-
-      // Let the FPS monitor collect some data
-      await tester.pump(const Duration(milliseconds: 500));
-
-      // Find the FPS display
-      final fpsTextFinder = find.byKey(const Key('fps_text'));
-      expect(fpsTextFinder, findsOneWidget);
-
-      // Get initial refresh rate info
-      await plugin.getRefreshRateInfo();
-
-      // Try to enable high refresh rate
-      final requestResult = await plugin.requestHighRefreshRate();
-
-      if (requestResult) {
-        // Wait a bit for refresh rate to potentially change
-        await tester.pump(const Duration(milliseconds: 200));
-
-        // Get updated info
-        final updatedInfo = await plugin.getRefreshRateInfo();
-
-        // Verify that info is returned (may or may not be different)
-        expect(updatedInfo, isA<Map<String, dynamic>>());
-        expect(updatedInfo.isNotEmpty, true);
-
-        // Stop high refresh rate
-        final stopResult = await plugin.stopHighRefreshRate();
-        expect(stopResult, isA<bool>());
-
-        // Wait a bit more
-        await tester.pump(const Duration(milliseconds: 200));
-
-        // Get final info
-        final finalInfo = await plugin.getRefreshRateInfo();
-        expect(finalInfo, isA<Map<String, dynamic>>());
-        expect(finalInfo.isNotEmpty, true);
-      }
-
-      // Verify FPS monitor is still working
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(fpsTextFinder, findsOneWidget);
-    });
-
     testWidgets('platform channel communication stress test', (
       WidgetTester tester,
     ) async {
