@@ -49,7 +49,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_refresh_rate_control: ^0.0.1
+  flutter_refresh_rate_control: ^0.0.2
 ```
 
 Then run:
