@@ -1,3 +1,4 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Initial release of the package
+* Attempts to set high refresh rate for iOS and Android devices

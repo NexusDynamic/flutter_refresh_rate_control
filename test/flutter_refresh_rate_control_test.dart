@@ -7,7 +7,6 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class MockFlutterRefreshRateControlPlatform
     with MockPlatformInterfaceMixin
     implements FlutterRefreshRateControlPlatform {
-
   bool _exceptionOnUnsupportedPlatform = false;
 
   @override
@@ -36,39 +35,54 @@ class MockFlutterRefreshRateControlPlatform
 }
 
 void main() {
-  final FlutterRefreshRateControlPlatform initialPlatform = FlutterRefreshRateControlPlatform.instance;
+  final FlutterRefreshRateControlPlatform initialPlatform =
+      FlutterRefreshRateControlPlatform.instance;
 
   test('$MethodChannelFlutterRefreshRateControl is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelFlutterRefreshRateControl>());
+    expect(
+      initialPlatform,
+      isInstanceOf<MethodChannelFlutterRefreshRateControl>(),
+    );
   });
 
   test('getPlatformVersion', () async {
-    FlutterRefreshRateControl flutterRefreshRateControlPlugin = FlutterRefreshRateControl();
-    MockFlutterRefreshRateControlPlatform fakePlatform = MockFlutterRefreshRateControlPlatform();
+    FlutterRefreshRateControl flutterRefreshRateControlPlugin =
+        FlutterRefreshRateControl();
+    MockFlutterRefreshRateControlPlatform fakePlatform =
+        MockFlutterRefreshRateControlPlatform();
     FlutterRefreshRateControlPlatform.instance = fakePlatform;
 
     expect(await flutterRefreshRateControlPlugin.getPlatformVersion(), '42');
   });
 
   test('requestHighRefreshRate', () async {
-    FlutterRefreshRateControl flutterRefreshRateControlPlugin = FlutterRefreshRateControl();
-    MockFlutterRefreshRateControlPlatform fakePlatform = MockFlutterRefreshRateControlPlatform();
+    FlutterRefreshRateControl flutterRefreshRateControlPlugin =
+        FlutterRefreshRateControl();
+    MockFlutterRefreshRateControlPlatform fakePlatform =
+        MockFlutterRefreshRateControlPlatform();
     FlutterRefreshRateControlPlatform.instance = fakePlatform;
 
-    expect(await flutterRefreshRateControlPlugin.requestHighRefreshRate(), true);
+    expect(
+      await flutterRefreshRateControlPlugin.requestHighRefreshRate(),
+      true,
+    );
   });
 
   test('stopHighRefreshRate', () async {
-    FlutterRefreshRateControl flutterRefreshRateControlPlugin = FlutterRefreshRateControl();
-    MockFlutterRefreshRateControlPlatform fakePlatform = MockFlutterRefreshRateControlPlatform();
+    FlutterRefreshRateControl flutterRefreshRateControlPlugin =
+        FlutterRefreshRateControl();
+    MockFlutterRefreshRateControlPlatform fakePlatform =
+        MockFlutterRefreshRateControlPlatform();
     FlutterRefreshRateControlPlatform.instance = fakePlatform;
 
     expect(await flutterRefreshRateControlPlugin.stopHighRefreshRate(), true);
   });
 
   test('getRefreshRateInfo', () async {
-    FlutterRefreshRateControl flutterRefreshRateControlPlugin = FlutterRefreshRateControl();
-    MockFlutterRefreshRateControlPlatform fakePlatform = MockFlutterRefreshRateControlPlatform();
+    FlutterRefreshRateControl flutterRefreshRateControlPlugin =
+        FlutterRefreshRateControl();
+    MockFlutterRefreshRateControlPlatform fakePlatform =
+        MockFlutterRefreshRateControlPlatform();
     FlutterRefreshRateControlPlatform.instance = fakePlatform;
 
     final info = await flutterRefreshRateControlPlugin.getRefreshRateInfo();
@@ -79,18 +93,29 @@ void main() {
   });
 
   test('exceptionOnUnsupportedPlatform', () async {
-    FlutterRefreshRateControl flutterRefreshRateControlPlugin = FlutterRefreshRateControl();
-    MockFlutterRefreshRateControlPlatform fakePlatform = MockFlutterRefreshRateControlPlatform();
+    FlutterRefreshRateControl flutterRefreshRateControlPlugin =
+        FlutterRefreshRateControl();
+    MockFlutterRefreshRateControlPlatform fakePlatform =
+        MockFlutterRefreshRateControlPlatform();
     FlutterRefreshRateControlPlatform.instance = fakePlatform;
 
-    expect(flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform, false);
-    
+    expect(
+      flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform,
+      false,
+    );
+
     flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform = true;
-    expect(flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform, true);
+    expect(
+      flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform,
+      true,
+    );
     expect(fakePlatform.exceptionOnUnsupportedPlatform, true);
-    
+
     flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform = false;
-    expect(flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform, false);
+    expect(
+      flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform,
+      false,
+    );
     expect(fakePlatform.exceptionOnUnsupportedPlatform, false);
   });
 }

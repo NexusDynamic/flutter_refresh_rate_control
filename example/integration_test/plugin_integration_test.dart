@@ -27,10 +27,12 @@ void main() {
       plugin.exceptionOnUnsupportedPlatform = false;
     });
 
-    testWidgets('getPlatformVersion returns non-empty string', (WidgetTester tester) async {
+    testWidgets('getPlatformVersion returns non-empty string', (
+      WidgetTester tester,
+    ) async {
       final String? version = await plugin.getPlatformVersion();
       expect(version?.isNotEmpty, true);
-      
+
       if (isSupported) {
         expect(version, anyOf(contains('Android'), contains('iOS')));
       } else {
@@ -38,16 +40,21 @@ void main() {
       }
     });
 
-    testWidgets('getRefreshRateInfo returns valid data structure', (WidgetTester tester) async {
+    testWidgets('getRefreshRateInfo returns valid data structure', (
+      WidgetTester tester,
+    ) async {
       final Map<String, dynamic> info = await plugin.getRefreshRateInfo();
-      
+
       expect(info, isA<Map<String, dynamic>>());
       expect(info.isNotEmpty, true);
-      
+
       if (isSupported) {
         // On supported platforms, should have refresh rate info
-        expect(info.containsKey('maximumFramesPerSecond') || 
-               info.containsKey('currentRefreshRate'), true);
+        expect(
+          info.containsKey('maximumFramesPerSecond') ||
+              info.containsKey('currentRefreshRate'),
+          true,
+        );
       } else {
         // On unsupported platforms, should indicate not supported
         expect(info['platform'], Platform.operatingSystem);
@@ -56,15 +63,17 @@ void main() {
       }
     });
 
-    testWidgets('refresh rate control methods return boolean', (WidgetTester tester) async {
+    testWidgets('refresh rate control methods return boolean', (
+      WidgetTester tester,
+    ) async {
       // Test requestHighRefreshRate
       final bool requestResult = await plugin.requestHighRefreshRate();
       expect(requestResult, isA<bool>());
-      
+
       // Test stopHighRefreshRate
       final bool stopResult = await plugin.stopHighRefreshRate();
       expect(stopResult, isA<bool>());
-      
+
       if (isSupported) {
         // On supported platforms, methods might succeed or fail based on device capabilities
         // We just verify they return valid boolean values
@@ -77,19 +86,21 @@ void main() {
       }
     });
 
-    testWidgets('exception handling works correctly', (WidgetTester tester) async {
+    testWidgets('exception handling works correctly', (
+      WidgetTester tester,
+    ) async {
       // Test default behavior (no exceptions)
       plugin.exceptionOnUnsupportedPlatform = false;
-      
+
       // These should not throw, regardless of platform
       await expectLater(plugin.getPlatformVersion(), completes);
       await expectLater(plugin.getRefreshRateInfo(), completes);
       await expectLater(plugin.requestHighRefreshRate(), completes);
       await expectLater(plugin.stopHighRefreshRate(), completes);
-      
+
       // Test exception mode
       plugin.exceptionOnUnsupportedPlatform = true;
-      
+
       if (isSupported) {
         // On supported platforms, should still work
         await expectLater(plugin.getPlatformVersion(), completes);
@@ -100,54 +111,60 @@ void main() {
         // On unsupported platforms, should throw PlatformException
         await expectLater(
           plugin.getPlatformVersion(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
-        
+
         await expectLater(
           plugin.getRefreshRateInfo(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
-        
+
         await expectLater(
           plugin.requestHighRefreshRate(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
-        
+
         await expectLater(
           plugin.stopHighRefreshRate(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
       }
     });
 
-    testWidgets('FPS monitoring and refresh rate testing', (WidgetTester tester) async {
+    testWidgets('FPS monitoring and refresh rate testing', (
+      WidgetTester tester,
+    ) async {
       // Only run this test on supported platforms
       if (!isSupported) {
         return;
       }
 
       // Create a test app with FPS monitoring
-      await tester.pumpWidget(
-        MaterialApp(
-          home: FPSTestWidget(plugin: plugin),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: FPSTestWidget(plugin: plugin)));
 
       // Wait for the widget to build
       await tester.pumpAndSettle();
@@ -161,28 +178,28 @@ void main() {
 
       // Get initial refresh rate info
       await plugin.getRefreshRateInfo();
-      
+
       // Try to enable high refresh rate
       final requestResult = await plugin.requestHighRefreshRate();
-      
+
       if (requestResult) {
         // Wait a bit for refresh rate to potentially change
         await tester.pump(const Duration(milliseconds: 200));
-        
+
         // Get updated info
         final updatedInfo = await plugin.getRefreshRateInfo();
-        
+
         // Verify that info is returned (may or may not be different)
         expect(updatedInfo, isA<Map<String, dynamic>>());
         expect(updatedInfo.isNotEmpty, true);
-        
+
         // Stop high refresh rate
         final stopResult = await plugin.stopHighRefreshRate();
         expect(stopResult, isA<bool>());
-        
+
         // Wait a bit more
         await tester.pump(const Duration(milliseconds: 200));
-        
+
         // Get final info
         final finalInfo = await plugin.getRefreshRateInfo();
         expect(finalInfo, isA<Map<String, dynamic>>());
@@ -194,10 +211,12 @@ void main() {
       expect(fpsTextFinder, findsOneWidget);
     });
 
-    testWidgets('platform channel communication stress test', (WidgetTester tester) async {
+    testWidgets('platform channel communication stress test', (
+      WidgetTester tester,
+    ) async {
       // Test multiple rapid calls to ensure platform channel stability
       const int numCalls = 10;
-      
+
       for (int i = 0; i < numCalls; i++) {
         // Rapid succession of calls
         final futures = await Future.wait([
@@ -206,14 +225,14 @@ void main() {
           plugin.requestHighRefreshRate(),
           plugin.stopHighRefreshRate(),
         ]);
-        
+
         // Verify all calls completed without throwing
         expect(futures.length, 4);
         expect(futures[0], isA<String>());
         expect(futures[1], isA<Map<String, dynamic>>());
         expect(futures[2], isA<bool>());
         expect(futures[3], isA<bool>());
-        
+
         // Small delay between batches
         await Future.delayed(const Duration(milliseconds: 10));
       }
@@ -274,9 +293,10 @@ class _FPSTestWidgetState extends State<FPSTestWidget> {
     if (elapsed > 0) {
       final index = _frameCount % _fpsHistory.length;
       _fpsHistory[index] = (1000 / elapsed);
-      
+
       if (index == _fpsHistory.length - 1) {
-        final averageFps = _fpsHistory.reduce((a, b) => a + b) / _fpsHistory.length;
+        final averageFps =
+            _fpsHistory.reduce((a, b) => a + b) / _fpsHistory.length;
         _fps.value = averageFps.round();
       }
     }
@@ -348,7 +368,10 @@ class _FPSTestWidgetState extends State<FPSTestWidget> {
                     _refreshRateInfo.entries
                         .map((e) => '${e.key}: ${e.value}')
                         .join('\n'),
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],

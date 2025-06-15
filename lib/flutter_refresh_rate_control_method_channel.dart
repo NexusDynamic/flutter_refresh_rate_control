@@ -6,7 +6,8 @@ import 'package:flutter/services.dart';
 import 'flutter_refresh_rate_control_platform_interface.dart';
 
 /// An implementation of [FlutterRefreshRateControlPlatform] that uses method channels.
-class MethodChannelFlutterRefreshRateControl extends FlutterRefreshRateControlPlatform {
+class MethodChannelFlutterRefreshRateControl
+    extends FlutterRefreshRateControlPlatform {
   bool _exceptionOnUnsupportedPlatform = false;
 
   /// Indicates whether an exception should be thrown on unsupported platforms.
@@ -44,7 +45,9 @@ class MethodChannelFlutterRefreshRateControl extends FlutterRefreshRateControlPl
     if (!_checkPlatform()) {
       return 'Unsupported platform: ${Platform.operatingSystem}';
     }
-    final version = await methodChannel!.invokeMethod<String>('getPlatformVersion');
+    final version = await methodChannel!.invokeMethod<String>(
+      'getPlatformVersion',
+    );
     return version;
   }
 
@@ -53,7 +56,9 @@ class MethodChannelFlutterRefreshRateControl extends FlutterRefreshRateControlPl
     if (!_checkPlatform()) {
       return false;
     }
-    final result = await methodChannel!.invokeMethod<bool>('requestHighRefreshRate');
+    final result = await methodChannel!.invokeMethod<bool>(
+      'requestHighRefreshRate',
+    );
     return result ?? false;
   }
 
@@ -62,7 +67,9 @@ class MethodChannelFlutterRefreshRateControl extends FlutterRefreshRateControlPl
     if (!_checkPlatform()) {
       return false;
     }
-    final result = await methodChannel!.invokeMethod<bool>('stopHighRefreshRate');
+    final result = await methodChannel!.invokeMethod<bool>(
+      'stopHighRefreshRate',
+    );
     return result ?? false;
   }
 

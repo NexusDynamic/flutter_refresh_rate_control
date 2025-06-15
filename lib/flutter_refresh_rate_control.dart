@@ -1,4 +1,3 @@
-
 import 'flutter_refresh_rate_control_platform_interface.dart';
 
 class FlutterRefreshRateControl {
@@ -6,9 +5,8 @@ class FlutterRefreshRateControl {
   bool get exceptionOnUnsupportedPlatform => _exceptionOnUnsupportedPlatform;
   set exceptionOnUnsupportedPlatform(bool value) {
     _exceptionOnUnsupportedPlatform = value;
-    FlutterRefreshRateControlPlatform.instance.setExceptionOnUnsupportedPlatform(
-      value,
-    );
+    FlutterRefreshRateControlPlatform.instance
+        .setExceptionOnUnsupportedPlatform(value);
   }
 
   Future<String?> getPlatformVersion() {

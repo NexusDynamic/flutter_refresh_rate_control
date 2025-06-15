@@ -7,37 +7,39 @@ import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control_method
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelFlutterRefreshRateControl platform = MethodChannelFlutterRefreshRateControl();
-  const MethodChannel channel = MethodChannel('com.zeyus.flutter_refresh_rate_control/manage');
-  
+  MethodChannelFlutterRefreshRateControl platform =
+      MethodChannelFlutterRefreshRateControl();
+  const MethodChannel channel = MethodChannel(
+    'com.zeyus.flutter_refresh_rate_control/manage',
+  );
+
   final bool isSupported = Platform.isAndroid || Platform.isIOS;
 
   setUp(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      channel,
-      (MethodCall methodCall) async {
-        switch (methodCall.method) {
-          case 'getPlatformVersion':
-            return '42';
-          case 'requestHighRefreshRate':
-            return true;
-          case 'stopHighRefreshRate':
-            return true;
-          case 'getRefreshRateInfo':
-            return {
-              'maximumFramesPerSecond': 120,
-              'currentRefreshRate': 60.0,
-              'highRefreshRateEnabled': false,
-            };
-          default:
-            return null;
-        }
-      },
-    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+          switch (methodCall.method) {
+            case 'getPlatformVersion':
+              return '42';
+            case 'requestHighRefreshRate':
+              return true;
+            case 'stopHighRefreshRate':
+              return true;
+            case 'getRefreshRateInfo':
+              return {
+                'maximumFramesPerSecond': 120,
+                'currentRefreshRate': 60.0,
+                'highRefreshRateEnabled': false,
+              };
+            default:
+              return null;
+          }
+        });
   });
 
   tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
   });
 
   test('getPlatformVersion', () async {
@@ -77,7 +79,10 @@ void main() {
     } else {
       expect(info['platform'], Platform.operatingSystem);
       expect(info['supported'], false);
-      expect(info['message'], 'Refresh rate control not supported on this platform');
+      expect(
+        info['message'],
+        'Refresh rate control not supported on this platform',
+      );
     }
   });
 
@@ -102,11 +107,13 @@ void main() {
       if (!isSupported) {
         expect(
           () async => await platform.getPlatformVersion(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
       }
     });
@@ -115,11 +122,13 @@ void main() {
       if (!isSupported) {
         expect(
           () async => await platform.requestHighRefreshRate(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
       }
     });
@@ -128,11 +137,13 @@ void main() {
       if (!isSupported) {
         expect(
           () async => await platform.stopHighRefreshRate(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
       }
     });
@@ -141,11 +152,13 @@ void main() {
       if (!isSupported) {
         expect(
           () async => await platform.getRefreshRateInfo(),
-          throwsA(isA<PlatformException>().having(
-            (e) => e.code,
-            'code',
-            'UNSUPPORTED_PLATFORM',
-          )),
+          throwsA(
+            isA<PlatformException>().having(
+              (e) => e.code,
+              'code',
+              'UNSUPPORTED_PLATFORM',
+            ),
+          ),
         );
       }
     });

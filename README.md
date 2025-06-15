@@ -36,7 +36,10 @@ A Flutter plugin that allows you to request high refresh rate mode on Android an
 - **App Background State**: High refresh rates may be disabled when app is not in foreground
 
 ### Platform-Specific Behavior
-- **Android**: Depends on device manufacturer implementation and Android version
+
+While the plugin will not cause problems on unsupported platforms, the behavior is as follows:
+
+- **Android**: Depends on device manufacturer implementation and Android version (e.g. 90Hz, 120Hz display with "Smooth Display" or manufacturer equivalent enabled)
 - **iOS**: Requires ProMotion displays (iPhone 13 Pro+, iPad Pro models)
 - **Adaptive Refresh**: Some devices use variable refresh rates based on content
 
@@ -46,7 +49,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_refresh_rate_control: ^1.0.0
+  flutter_refresh_rate_control: ^0.0.1
 ```
 
 Then run:
@@ -54,6 +57,27 @@ Then run:
 ```bash
 flutter pub get
 ```
+
+### iOS Setup
+
+For iOS, ensure you have the following in your [`Info.plist`](example/ios/Runner/Info.plist) to allow high refresh rates: (this should already be included by Flutter)
+
+```xml
+<key>CADisableMinimumFrameDurationOnPhone</key>
+<true/>
+```
+
+### Android Setup
+
+For Android, ensure you have the following in your [`res/values/styles.xml`](example/android/app/src/main/res/values/styles.xml):
+
+```xml
+<style name="frameRatePowerSavingsBalancedDisabled">
+    <item name="android:windowIsFrameRatePowerSavingsBalanced">false</item>
+</style>
+```
+
+Note: This disables Adaptive Refresh Rate (ARR). See: [Optimize frame rate with adaptive refresh rate](https://developer.android.com/develop/ui/views/animations/adaptive-refresh-rate#enable-disable-arr) for more information.
 
 ## Usage
 

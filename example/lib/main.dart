@@ -31,11 +31,13 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String platformVersion;
     Map<String, dynamic> refreshRateInfo = {};
-    
+
     try {
       platformVersion =
-          await _flutterRefreshRateControlPlugin.getPlatformVersion() ?? 'Unknown platform version';
-      refreshRateInfo = await _flutterRefreshRateControlPlugin.getRefreshRateInfo();
+          await _flutterRefreshRateControlPlugin.getPlatformVersion() ??
+          'Unknown platform version';
+      refreshRateInfo = await _flutterRefreshRateControlPlugin
+          .getRefreshRateInfo();
     } on PlatformException catch (e) {
       platformVersion = 'Failed to get platform version: ${e.message}';
     }
@@ -54,22 +56,23 @@ class _MyAppState extends State<MyApp> {
       if (_isHighRefreshRate) {
         success = await _flutterRefreshRateControlPlugin.stopHighRefreshRate();
       } else {
-        success = await _flutterRefreshRateControlPlugin.requestHighRefreshRate();
+        success = await _flutterRefreshRateControlPlugin
+            .requestHighRefreshRate();
       }
-      
+
       if (success) {
         setState(() {
           _isHighRefreshRate = !_isHighRefreshRate;
         });
-        
+
         // Refresh the info after changing mode
         await _updateRefreshRateInfo();
       }
     } on PlatformException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.message}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.message}')));
       }
     }
   }
@@ -83,7 +86,9 @@ class _MyAppState extends State<MyApp> {
     } on PlatformException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error getting refresh rate info: ${e.message}')),
+          SnackBar(
+            content: Text('Error getting refresh rate info: ${e.message}'),
+          ),
         );
       }
     }
@@ -93,9 +98,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Refresh Rate Control'),
-        ),
+        appBar: AppBar(title: const Text('Refresh Rate Control')),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -114,7 +117,11 @@ class _MyAppState extends State<MyApp> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _toggleHighRefreshRate,
-                child: Text(_isHighRefreshRate ? 'Stop High Refresh Rate' : 'Enable High Refresh Rate'),
+                child: Text(
+                  _isHighRefreshRate
+                      ? 'Stop High Refresh Rate'
+                      : 'Enable High Refresh Rate',
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
@@ -129,7 +136,9 @@ class _MyAppState extends State<MyApp> {
                     onChanged: (value) {
                       setState(() {
                         _exceptionMode = value ?? false;
-                        _flutterRefreshRateControlPlugin.exceptionOnUnsupportedPlatform = _exceptionMode;
+                        _flutterRefreshRateControlPlugin
+                                .exceptionOnUnsupportedPlatform =
+                            _exceptionMode;
                       });
                     },
                   ),
@@ -147,10 +156,10 @@ class _MyAppState extends State<MyApp> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Text(
-                    _refreshRateInfo.isNotEmpty 
+                    _refreshRateInfo.isNotEmpty
                         ? _refreshRateInfo.entries
-                            .map((e) => '${e.key}: ${e.value}')
-                            .join('\n')
+                              .map((e) => '${e.key}: ${e.value}')
+                              .join('\n')
                         : 'No refresh rate info available',
                     style: const TextStyle(fontFamily: 'monospace'),
                   ),

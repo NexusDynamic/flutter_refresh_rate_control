@@ -8,7 +8,8 @@ abstract class FlutterRefreshRateControlPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FlutterRefreshRateControlPlatform _instance = MethodChannelFlutterRefreshRateControl();
+  static FlutterRefreshRateControlPlatform _instance =
+      MethodChannelFlutterRefreshRateControl();
 
   /// The default instance of [FlutterRefreshRateControlPlatform] to use.
   ///
@@ -39,7 +40,9 @@ abstract class FlutterRefreshRateControlPlatform extends PlatformInterface {
   }
 
   Future<bool> requestHighRefreshRate() {
-    throw UnimplementedError('requestHighRefreshRate() has not been implemented.');
+    throw UnimplementedError(
+      'requestHighRefreshRate() has not been implemented.',
+    );
   }
 
   Future<bool> stopHighRefreshRate() {
