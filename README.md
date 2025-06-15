@@ -406,7 +406,7 @@ flutter test integration_test/plugin_integration_test.dart
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines and submit pull requests to our [GitHub repository](https://github.com/your-username/flutter_refresh_rate_control).
+Contributions are welcome! Please read our contributing guidelines and submit pull requests to our [GitHub repository](https://github.com/NexusDynamic/flutter_refresh_rate_control).
 
 ## License
 
