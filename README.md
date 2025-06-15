@@ -320,7 +320,7 @@ The Android implementation uses the following APIs:
 
 **Android Documentation:**
 - [Display Modes](https://developer.android.com/guide/topics/display-cutout#display_modes)
-- [Frame Rate API](https://developer.android.com/games/sdk/frame-pacing/frame-rate-api)
+- [Frame Rate API](https://developer.android.com/games/sdk/frame-pacing)
 
 ### iOS Implementation
 
@@ -333,7 +333,7 @@ The iOS implementation uses CADisplayLink for high refresh rate control:
 **Key iOS APIs:**
 - [`CADisplayLink`](https://developer.apple.com/documentation/quartzcore/cadisplaylink)
 - [`CAFrameRateRange`](https://developer.apple.com/documentation/quartzcore/caframeraterange)
-- [`UIScreen.maximumFramesPerSecond`](https://developer.apple.com/documentation/uikit/uiscreen/1617837-maximumframespersecond)
+- [`UIScreen.maximumFramesPerSecond`](https://developer.apple.com/documentation/uikit/uiscreen/maximumframespersecond)
 
 **iOS Documentation:**
 - [ProMotion Technology](https://developer.apple.com/documentation/quartzcore/optimizing_promotion_refresh_rates_for_iphone_13_pro_and_ipad_pro)
