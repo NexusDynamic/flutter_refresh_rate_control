@@ -1,3 +1,7 @@
+# 0.0.4+1
+
+* Lower Dart SDK minimum version to `3.7.0`
+
 # 0.0.3+1
 
 * Migrated to Swift Package Manager
