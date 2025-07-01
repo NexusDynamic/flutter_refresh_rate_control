@@ -24,9 +24,10 @@ class MethodChannelFlutterRefreshRateControl
 
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final MethodChannel? methodChannel = (Platform.isAndroid || Platform.isIOS)
-      ? const MethodChannel('com.zeyus.flutter_refresh_rate_control/manage')
-      : null;
+  final MethodChannel? methodChannel =
+      (Platform.isAndroid || Platform.isIOS)
+          ? const MethodChannel('com.zeyus.flutter_refresh_rate_control/manage')
+          : null;
 
   bool _checkPlatform() {
     if (exceptionOnUnsupportedPlatform && methodChannel == null) {

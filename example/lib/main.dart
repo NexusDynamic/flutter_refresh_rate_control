@@ -38,8 +38,8 @@ class _FlutterRefreshRateControlExampleAppState
       platformVersion =
           await _flutterRefreshRateControlPlugin.getPlatformVersion() ??
           'Unknown platform version';
-      refreshRateInfo = await _flutterRefreshRateControlPlugin
-          .getRefreshRateInfo();
+      refreshRateInfo =
+          await _flutterRefreshRateControlPlugin.getRefreshRateInfo();
     } on PlatformException catch (e) {
       platformVersion = 'Failed to get platform version: ${e.message}';
     }
@@ -58,8 +58,8 @@ class _FlutterRefreshRateControlExampleAppState
       if (_isHighRefreshRate) {
         success = await _flutterRefreshRateControlPlugin.stopHighRefreshRate();
       } else {
-        success = await _flutterRefreshRateControlPlugin
-            .requestHighRefreshRate();
+        success =
+            await _flutterRefreshRateControlPlugin.requestHighRefreshRate();
       }
 
       if (success) {
@@ -139,8 +139,7 @@ class _FlutterRefreshRateControlExampleAppState
                       setState(() {
                         _exceptionMode = value ?? false;
                         _flutterRefreshRateControlPlugin
-                                .exceptionOnUnsupportedPlatform =
-                            _exceptionMode;
+                            .exceptionOnUnsupportedPlatform = _exceptionMode;
                       });
                     },
                   ),
@@ -160,8 +159,8 @@ class _FlutterRefreshRateControlExampleAppState
                   child: Text(
                     _refreshRateInfo.isNotEmpty
                         ? _refreshRateInfo.entries
-                              .map((e) => '${e.key}: ${e.value}')
-                              .join('\n')
+                            .map((e) => '${e.key}: ${e.value}')
+                            .join('\n')
                         : 'No refresh rate info available',
                     style: const TextStyle(fontFamily: 'monospace'),
                   ),
