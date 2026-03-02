@@ -1,4 +1,4 @@
-# 0.0.5+2
+# 0.0.6+0
 
 * Readme update, added TOC and clarified some documentation.
 
