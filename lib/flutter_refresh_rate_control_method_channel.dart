@@ -83,7 +83,20 @@ class MethodChannelFlutterRefreshRateControl
         'message': 'Refresh rate control not supported on this platform',
       };
     }
-    final result = await methodChannel!.invokeMethod('getRefreshRateInfo');
-    return Map<String, dynamic>.from(result ?? {});
+    final defaultResult = {
+      'platform': Platform.operatingSystem,
+      'supported': true,
+    };
+    final result = await methodChannel!.invokeMethod<Map<String, dynamic>>(
+      'getRefreshRateInfo',
+    );
+    if (result == null) {
+      return defaultResult;
+    }
+    // Due to a typo, Android has currentRefreshRate and iOS has currentFramesPerSecond.
+    // So now you can use either :P
+    result['currentRefreshRate'] ??= result['currentFramesPerSecond'];
+    result['currentFramesPerSecond'] ??= result['currentRefreshRate'];
+    return Map<String, dynamic>.from(defaultResult)..addAll(result);
   }
 }
