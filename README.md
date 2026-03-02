@@ -86,39 +86,37 @@ Note: This disables Adaptive Refresh Rate (ARR). See: [Optimize frame rate with 
 ### Basic Example
 
 ```dart
-import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control.dart';
+void main() async {
+  final _refreshRateControl = FlutterRefreshRateControl();
 
-final _refreshRateControl = FlutterRefreshRateControl();
-
-// Request high refresh rate
-try {
-  bool success = await _refreshRateControl.requestHighRefreshRate();
-  if (success) {
+  // Request high refresh rate
+  bool requestSuccess = await _refreshRateControl.requestHighRefreshRate();
+  if (requestSuccess) {
     print('High refresh rate enabled');
   } else {
     print('Failed to enable high refresh rate');
   }
-} catch (e) {
-  print('Error: $e');
-}
 
-// Get refresh rate information
-try {
+  // Get refresh rate information
+  // See lib/flutter_refresh_rate_control.dart: getRefreshRateInfo()
+  // for more possible values.
   Map<String, dynamic> info = await _refreshRateControl.getRefreshRateInfo();
-  print('Current refresh rate: ${info['currentRefreshRate']}');
-  print('Maximum refresh rate: ${info['maximumFramesPerSecond']}');
-} catch (e) {
-  print('Error getting refresh rate info: $e');
-}
 
-// Stop high refresh rate mode
-try {
-  bool success = await _refreshRateControl.stopHighRefreshRate();
-  if (success) {
+  // Available on all platforms:
+  print('Platform: ${info['platform']}');
+  print('Supported: ${info['supported']}');
+
+  // Android and iOS only:
+  if (info['supported'] == true) {
+    print('Current refresh rate: ${info['currentRefreshRate']}');
+    print('Maximum refresh rate: ${info['maximumFramesPerSecond']}');
+  }
+
+  // Stop high refresh rate mode
+  bool stopSuccess = await _refreshRateControl.stopHighRefreshRate();
+  if (stopSuccess) {
     print('Returned to normal refresh rate');
   }
-} catch (e) {
-  print('Error: $e');
 }
 ```
 
