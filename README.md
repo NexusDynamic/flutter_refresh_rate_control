@@ -86,6 +86,8 @@ Note: This disables Adaptive Refresh Rate (ARR). See: [Optimize frame rate with 
 ### Basic Example
 
 ```dart
+import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control.dart';
+
 void main() async {
   final _refreshRateControl = FlutterRefreshRateControl();
 
