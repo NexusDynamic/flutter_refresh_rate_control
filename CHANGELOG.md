@@ -1,3 +1,7 @@
+# 0.0.5+2
+
+* Readme update, added TOC and clarified some documentation.
+
 # 0.0.5+1
 
 * Updated dependencies

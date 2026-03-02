@@ -4,7 +4,52 @@
 
 A Flutter plugin that allows you to request high refresh rate mode on Android and iOS devices. This plugin provides a simple API to attempt to enable the highest possible refresh rate for your Flutter application.
 
-## Platform Support
+
+<!-- vscode-markdown-toc -->
+* 1. [Platform Support](#PlatformSupport)
+* 2. [Features](#Features)
+* 3. [Important Limitations](#ImportantLimitations)
+	* 3.1. [System-Level Limitations](#System-LevelLimitations)
+	* 3.2. [Platform-Specific Behavior](#Platform-SpecificBehavior)
+* 4. [Installation](#Installation)
+	* 4.1. [iOS Setup](#iOSSetup)
+	* 4.2. [Android Setup](#AndroidSetup)
+* 5. [Usage](#Usage)
+	* 5.1. [Basic Example](#BasicExample)
+	* 5.2. [Complete Example](#CompleteExample)
+* 6. [Exception Handling](#ExceptionHandling)
+	* 6.1. [Default Behavior (No Exceptions)](#DefaultBehaviorNoExceptions)
+	* 6.2. [Enable Exceptions for Unsupported Platforms](#EnableExceptionsforUnsupportedPlatforms)
+	* 6.3. [When to Use Each Approach](#WhentoUseEachApproach)
+* 7. [API Reference](#APIReference)
+	* 7.1. [Properties](#Properties)
+		* 7.1.1. [`exceptionOnUnsupportedPlatform`](#exceptionOnUnsupportedPlatform)
+	* 7.2. [Methods](#Methods)
+		* 7.2.1. [`requestHighRefreshRate()`](#requestHighRefreshRate)
+		* 7.2.2. [`stopHighRefreshRate()`](#stopHighRefreshRate)
+		* 7.2.3. [`getRefreshRateInfo()`](#getRefreshRateInfo)
+* 8. [Platform Implementation Details](#PlatformImplementationDetails)
+	* 8.1. [Android Implementation](#AndroidImplementation)
+	* 8.2. [iOS Implementation](#iOSImplementation)
+* 9. [Troubleshooting](#Troubleshooting)
+	* 9.1. [Common Issues](#CommonIssues)
+	* 9.2. [Testing](#Testing)
+		* 9.2.1. [Unit Tests](#UnitTests)
+		* 9.2.2. [Integration Tests](#IntegrationTests)
+		* 9.2.3. [Manual Testing Tips](#ManualTestingTips)
+	* 9.3. [Performance Considerations](#PerformanceConsiderations)
+* 10. [Contributing](#Contributing)
+* 11. [License](#License)
+* 12. [Changelog](#Changelog)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+
+##  1. <a name='PlatformSupport'></a>Platform Support
 
 | Platform | Support | Min Version | Behavior |
 |----------|---------|-------------|----------|
@@ -17,7 +62,7 @@ A Flutter plugin that allows you to request high refresh rate mode on Android an
 
 **Note**: Unsupported platforms will gracefully return `false` for control methods and empty/default values for info methods. You can optionally enable exceptions for unsupported platforms (see [Exception Handling](#exception-handling)).
 
-## Features
+##  2. <a name='Features'></a>Features
 
 - Request the highest available refresh rate on supported devices
 - Stop high refresh rate mode to return to normal power consumption
@@ -26,18 +71,18 @@ A Flutter plugin that allows you to request high refresh rate mode on Android an
 - Graceful handling of unsupported platforms (no-op by default)
 - Optional exception throwing for unsupported platforms
 
-## Important Limitations
+##  3. <a name='ImportantLimitations'></a>Important Limitations
 
 ⚠️ **This plugin only attempts to request the highest possible refresh rate.** There are several factors that may prevent achieving high refresh rates:
 
-### System-Level Limitations
+###  3.1. <a name='System-LevelLimitations'></a>System-Level Limitations
 - **Low Battery Mode**: Most devices disable high refresh rates when battery is low
 - **Thermal Throttling**: Devices may reduce refresh rate when overheating
 - **Power Management**: System may override refresh rate settings to preserve battery
 - **Display Hardware**: Not all devices support high refresh rates
 - **App Background State**: High refresh rates may be disabled when app is not in foreground
 
-### Platform-Specific Behavior
+###  3.2. <a name='Platform-SpecificBehavior'></a>Platform-Specific Behavior
 
 While the plugin will not cause problems on unsupported platforms, the behavior is as follows:
 
@@ -45,7 +90,7 @@ While the plugin will not cause problems on unsupported platforms, the behavior 
 - **iOS**: Requires ProMotion displays (iPhone 13 Pro+, iPad Pro models)
 - **Adaptive Refresh**: Some devices use variable refresh rates based on content
 
-## Installation
+##  4. <a name='Installation'></a>Installation
 
 Add this to your package's `pubspec.yaml` file:
 
@@ -60,7 +105,7 @@ Then run:
 flutter pub get
 ```
 
-### iOS Setup
+###  4.1. <a name='iOSSetup'></a>iOS Setup
 
 For iOS, ensure you have the following in your [`Info.plist`](example/ios/Runner/Info.plist) to allow high refresh rates: (this should already be included by Flutter)
 
@@ -69,7 +114,7 @@ For iOS, ensure you have the following in your [`Info.plist`](example/ios/Runner
 <true/>
 ```
 
-### Android Setup
+###  4.2. <a name='AndroidSetup'></a>Android Setup
 
 For Android, ensure you have the following in your [`res/values/styles.xml`](example/android/app/src/main/res/values/styles.xml):
 
@@ -81,9 +126,9 @@ For Android, ensure you have the following in your [`res/values/styles.xml`](exa
 
 Note: This disables Adaptive Refresh Rate (ARR). See: [Optimize frame rate with adaptive refresh rate](https://developer.android.com/develop/ui/views/animations/adaptive-refresh-rate#enable-disable-arr) for more information.
 
-## Usage
+##  5. <a name='Usage'></a>Usage
 
-### Basic Example
+###  5.1. <a name='BasicExample'></a>Basic Example
 
 ```dart
 import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control.dart';
@@ -122,7 +167,7 @@ void main() async {
 }
 ```
 
-### Complete Example
+###  5.2. <a name='CompleteExample'></a>Complete Example
 
 ```dart
 import 'package:flutter/material.dart';
@@ -204,11 +249,11 @@ class _RefreshRateScreenState extends State<RefreshRateScreen> {
 }
 ```
 
-## Exception Handling
+##  6. <a name='ExceptionHandling'></a>Exception Handling
 
 By default, the plugin gracefully handles unsupported platforms by returning `false` for control methods and empty/informational data for info methods. However, you can optionally enable exceptions for unsupported platforms:
 
-### Default Behavior (No Exceptions)
+###  6.1. <a name='DefaultBehaviorNoExceptions'></a>Default Behavior (No Exceptions)
 
 ```dart
 final _refreshRateControl = FlutterRefreshRateControl();
@@ -219,7 +264,7 @@ Map<String, dynamic> info = await _refreshRateControl.getRefreshRateInfo();
 // Returns: {'platform': 'web', 'supported': false, 'message': '...'}
 ```
 
-### Enable Exceptions for Unsupported Platforms
+###  6.2. <a name='EnableExceptionsforUnsupportedPlatforms'></a>Enable Exceptions for Unsupported Platforms
 
 ```dart
 final _refreshRateControl = FlutterRefreshRateControl();
@@ -236,7 +281,7 @@ try {
 }
 ```
 
-### When to Use Each Approach
+###  6.3. <a name='WhentoUseEachApproach'></a>When to Use Each Approach
 
 **Use default behavior (no exceptions) when:**
 - You want your app to work seamlessly across all platforms
@@ -248,11 +293,11 @@ try {
 - You want to fail fast during development/testing
 - You prefer exception-based error handling
 
-## API Reference
+##  7. <a name='APIReference'></a>API Reference
 
-### Properties
+###  7.1. <a name='Properties'></a>Properties
 
-#### `exceptionOnUnsupportedPlatform`
+####  7.1.1. <a name='exceptionOnUnsupportedPlatform'></a>`exceptionOnUnsupportedPlatform`
 Controls whether exceptions should be thrown on unsupported platforms.
 
 **Type:** `bool`  
@@ -265,49 +310,56 @@ plugin.exceptionOnUnsupportedPlatform = true; // Enable exceptions
 bool isEnabled = plugin.exceptionOnUnsupportedPlatform; // Check current state
 ```
 
-### Methods
+###  7.2. <a name='Methods'></a>Methods
 
-#### `requestHighRefreshRate()`
+####  7.2.1. <a name='requestHighRefreshRate'></a>`requestHighRefreshRate()`
 Attempts to enable the highest available refresh rate.
 
 **Returns:** `Future<bool>` - `true` if successful, `false` otherwise
 
 **Throws:** `PlatformException` if an error occurs
 
-#### `stopHighRefreshRate()`
+####  7.2.2. <a name='stopHighRefreshRate'></a>`stopHighRefreshRate()`
 Stops high refresh rate mode and returns to normal refresh rate.
 
 **Returns:** `Future<bool>` - `true` if successful, `false` otherwise
 
 **Throws:** `PlatformException` if an error occurs
 
-#### `getRefreshRateInfo()`
+####  7.2.3. <a name='getRefreshRateInfo'></a>`getRefreshRateInfo()`
 Gets detailed information about the device's refresh rate capabilities.
 
 **Returns:** `Future<Map<String, dynamic>>` containing:
 
-**Common fields:**
-- `maximumFramesPerSecond`: Maximum refresh rate supported by the device
-- `currentRefreshRate`: Current refresh rate
+- **All platforms**
+  - `platform`: (string) The platform the app is running on, e.g. "android", "ios", "windows", "linux", "macos"
+  - `supported`: (bool) Whether refresh rate control is supported on the current platform
 
-**iOS-specific fields:**
-- `duration`: CADisplayLink duration
-- `timestamp`: Current timestamp
-- `targetTimestamp`: Target timestamp
-- `preferredFrameRateRange`: Frame rate range (iOS 15+)
+- **Unsupported platforms**
+  - `message`: (string) "Refresh rate control not supported on this platform"
 
-**Android-specific fields:**
-- `supportedModes`: List of all supported display modes
-- `currentMode`: Current display mode information
-- `highRefreshRateEnabled`: Whether high refresh rate is currently enabled
-- `androidVersion`: Android API level
-- `deviceModel`: Device manufacturer and model
+- **Android/iOS**:
+  - `currentRefreshRate`, `currentFramesPerSecond`: Current refresh rate in Hz
+  - `maximumFramesPerSecond`: Maximum supported refresh rate in Hz
 
-**Throws:** `PlatformException` if an error occurs
+- **iOS-specific fields:**
+  - `duration`: CADisplayLink duration
+  - `timestamp`: Current timestamp
+  - `targetTimestamp`: Target timestamp
+  - `preferredFrameRateRange`: Frame rate range (iOS 15+)
 
-## Platform Implementation Details
+- **Android-specific fields:**
+  - `supportedModes`: List of all supported display modes
+  - `currentMode`: Current display mode information
+  - `highRefreshRateEnabled`: Whether high refresh rate is currently enabled
+  - `androidVersion`: Android API level
+  - `deviceModel`: Device manufacturer and model
 
-### Android Implementation
+**Throws:** `PlatformException` if `exceptionOnUnsupportedPlatform` is enabled and platform is unsupported
+
+##  8. <a name='PlatformImplementationDetails'></a>Platform Implementation Details
+
+###  8.1. <a name='AndroidImplementation'></a>Android Implementation
 
 The Android implementation uses the following APIs:
 
@@ -324,7 +376,7 @@ The Android implementation uses the following APIs:
 - [Display Modes](https://developer.android.com/guide/topics/display-cutout#display_modes)
 - [Frame Rate API](https://developer.android.com/games/sdk/frame-pacing)
 
-### iOS Implementation
+###  8.2. <a name='iOSImplementation'></a>iOS Implementation
 
 The iOS implementation uses CADisplayLink for high refresh rate control:
 
@@ -341,9 +393,9 @@ The iOS implementation uses CADisplayLink for high refresh rate control:
 - [ProMotion Technology](https://developer.apple.com/documentation/quartzcore/optimizing_promotion_refresh_rates_for_iphone_13_pro_and_ipad_pro)
 - [CADisplayLink Reference](https://developer.apple.com/documentation/quartzcore/cadisplaylink)
 
-## Troubleshooting
+##  9. <a name='Troubleshooting'></a>Troubleshooting
 
-### Common Issues
+###  9.1. <a name='CommonIssues'></a>Common Issues
 
 **High refresh rate not working:**
 1. Check if platform is supported (Android/iOS only)
@@ -363,15 +415,15 @@ The iOS implementation uses CADisplayLink for high refresh rate control:
 - With exceptions enabled: `PlatformException` with code `'UNSUPPORTED_PLATFORM'` is thrown
 - Use `getRefreshRateInfo()` to check platform support status
 
-### Testing
+###  9.2. <a name='Testing'></a>Testing
 
-#### Unit Tests
+####  9.2.1. <a name='UnitTests'></a>Unit Tests
 Run the unit tests to verify platform interface and method channel functionality:
 ```bash
 flutter test
 ```
 
-#### Integration Tests
+####  9.2.2. <a name='IntegrationTests'></a>Integration Tests
 Run the integration tests on a real device or simulator to test platform channel communication and FPS monitoring:
 
 ```bash
@@ -382,15 +434,7 @@ flutter test integration_test/plugin_integration_test.dart
 flutter test integration_test/plugin_integration_test.dart
 ```
 
-**Integration test features:**
-- Platform channel communication verification
-- FPS monitoring (inspired by liblsl_timing FPSoverlay)
-- Exception handling validation
-- Stress testing with rapid API calls
-- Real refresh rate change detection
-- Cross-platform compatibility testing
-
-#### Manual Testing Tips
+####  9.2.3. <a name='ManualTestingTips'></a>Manual Testing Tips
 
 1. Use a device with high refresh rate support
 2. Ensure device is charged and not in power saving mode
@@ -399,21 +443,21 @@ flutter test integration_test/plugin_integration_test.dart
 5. Test on both supported (Android/iOS) and unsupported platforms
 6. Try enabling/disabling exception mode to test error handling
 
-### Performance Considerations
+###  9.3. <a name='PerformanceConsiderations'></a>Performance Considerations
 
 - High refresh rates consume more battery
 - May cause device heating during extended use
 - Some devices automatically adjust based on content
 - Consider user preferences and battery level in your app
 
-## Contributing
+##  10. <a name='Contributing'></a>Contributing
 
 Contributions are welcome! Please read our contributing guidelines and submit pull requests to our [GitHub repository](https://github.com/NexusDynamic/flutter_refresh_rate_control).
 
-## License
+##  11. <a name='License'></a>License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Changelog
+##  12. <a name='Changelog'></a>Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
