@@ -87,9 +87,10 @@ class MethodChannelFlutterRefreshRateControl
       'platform': Platform.operatingSystem,
       'supported': true,
     };
-    final result = await methodChannel!.invokeMethod<Map<String, dynamic>>(
-      'getRefreshRateInfo',
-    );
+    final result =
+        (await methodChannel!.invokeMethod<Map<dynamic, dynamic>>(
+          'getRefreshRateInfo',
+        ))?.cast<String, dynamic>();
     if (result == null) {
       return defaultResult;
     }

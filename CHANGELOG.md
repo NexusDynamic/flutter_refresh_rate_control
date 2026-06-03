@@ -1,3 +1,10 @@
+# 0.0.7+0
+
+* Remove KGP
+* Update method channel invocation
+* Update iOS to use swift package manager
+* Remove pods
+
 # 0.0.6+0
 
 * Readme update, added TOC and clarified some documentation.

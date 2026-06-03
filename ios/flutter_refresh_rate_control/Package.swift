@@ -12,11 +12,15 @@ let package = Package(
     products: [
         .library(name: "flutter-refresh-rate-control", targets: ["flutter_refresh_rate_control"])
     ],
-    dependencies: [],
+    dependencies: [
+        .package(name: "FlutterFramework", path: "../FlutterFramework")
+    ],
     targets: [
         .target(
             name: "flutter_refresh_rate_control",
-            dependencies: [],
+            dependencies: [
+                .product(name: "FlutterFramework", package: "FlutterFramework")
+            ],
             resources: [
                 .process("PrivacyInfo.xcprivacy"),
             ]
