@@ -16,8 +16,9 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const FlutterRefreshRateControlExampleApp());
 
-    // Wait for async operations to complete
-    await tester.pumpAndSettle();
+    // Wait for async operations to complete. The FPS counter keeps
+    // scheduling frames, so the app never settles.
+    await tester.pump(const Duration(milliseconds: 100));
 
     // Verify that the app title is displayed
     expect(find.text('Refresh Rate Control'), findsOneWidget);
@@ -25,6 +26,9 @@ void main() {
     // Verify that control buttons are present
     expect(find.text('Enable High Refresh Rate'), findsOneWidget);
     expect(find.text('Refresh Info'), findsOneWidget);
+    expect(find.textContaining('Rendered FPS:'), findsOneWidget);
+    // The update interval of the FPS counter
+    expect(find.text('Once a second'), findsOneWidget);
 
     // Verify that platform info is displayed
     expect(find.textContaining('Platform:'), findsOneWidget);

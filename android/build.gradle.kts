@@ -1,5 +1,5 @@
 group = "com.zeyus.flutter_refresh_rate_control"
-version = "0.0.7"
+version = "0.1.0"
 
 buildscript {
     val kotlinVersion = "2.3.20"

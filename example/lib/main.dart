@@ -4,6 +4,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control.dart';
 
+import 'fps_counter.dart';
+
 void main() {
   runApp(const FlutterRefreshRateControlExampleApp());
 }
@@ -22,6 +24,10 @@ class _FlutterRefreshRateControlExampleAppState
   Map<String, dynamic> _refreshRateInfo = {};
   bool _isHighRefreshRate = false;
   bool _exceptionMode = false;
+  // Duration.zero updates the FPS counter on every frame
+  Duration _fpsUpdateInterval = const Duration(seconds: 1);
+  // Without an animation only the updates of the FPS counter are rendered
+  bool _showAnimation = true;
   final _flutterRefreshRateControlPlugin = FlutterRefreshRateControl();
 
   @override
@@ -115,6 +121,76 @@ class _FlutterRefreshRateControlExampleAppState
                   fontWeight: FontWeight.bold,
                   color: _isHighRefreshRate ? Colors.green : Colors.red,
                 ),
+              ),
+              const SizedBox(height: 16),
+              // The rate Flutter really renders at, whatever was requested
+              Row(
+                children: [
+                  if (_showAnimation) ...[
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  FpsCounter(
+                    updateInterval:
+                        _fpsUpdateInterval == Duration.zero
+                            ? null
+                            : _fpsUpdateInterval,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text('Update FPS: '),
+                  DropdownButton<Duration>(
+                    value: _fpsUpdateInterval,
+                    onChanged: (value) {
+                      setState(() {
+                        _fpsUpdateInterval = value ?? Duration.zero;
+                      });
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        value: Duration.zero,
+                        child: Text('Every frame'),
+                      ),
+                      DropdownMenuItem(
+                        value: Duration(milliseconds: 250),
+                        child: Text('4 times a second'),
+                      ),
+                      DropdownMenuItem(
+                        value: Duration(seconds: 1),
+                        child: Text('Once a second'),
+                      ),
+                      DropdownMenuItem(
+                        value: Duration(seconds: 5),
+                        child: Text('Every 5 seconds'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _showAnimation,
+                    onChanged: (value) {
+                      setState(() {
+                        _showAnimation = value ?? false;
+                      });
+                    },
+                  ),
+                  const Expanded(
+                    child: Text('Show an animation, so there are frames'),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               ElevatedButton(

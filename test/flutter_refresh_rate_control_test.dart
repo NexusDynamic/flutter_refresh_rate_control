@@ -24,7 +24,7 @@ class MockFlutterRefreshRateControlPlatform
   Future<bool> requestHighRefreshRate() => Future.value(true);
 
   @override
-  Future<bool> stopHighRefreshRate() => Future.value(true);
+  Future<bool> stopHighRefreshRate({bool force = false}) => Future.value(true);
 
   @override
   Future<Map<String, dynamic>> getRefreshRateInfo() => Future.value({

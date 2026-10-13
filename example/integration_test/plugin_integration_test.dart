@@ -3,23 +3,53 @@
 // Since integration tests run in a full Flutter application, they can interact
 // with the host side of a plugin implementation, unlike Dart unit tests.
 
-import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control.dart';
+import 'package:flutter_refresh_rate_control_example/fps_counter.dart';
+
+/// Lets the frame rate settle, then returns the average frames per second
+/// that Flutter was given over [duration].
+Future<double> measureFps(
+  WidgetTester tester, {
+  Duration settle = const Duration(seconds: 1),
+  Duration duration = const Duration(seconds: 3),
+}) async {
+  final timestamps = <Duration>[];
+  bool measuring = false;
+  // Persistent frame callbacks cannot be removed, so this one goes quiet
+  // once the measurement is over.
+  SchedulerBinding.instance.addPersistentFrameCallback((_) {
+    if (measuring) {
+      timestamps.add(SchedulerBinding.instance.currentSystemFrameTimeStamp);
+    }
+  });
+
+  await tester.runAsync(() => Future<void>.delayed(settle));
+  measuring = true;
+  await tester.runAsync(() => Future<void>.delayed(duration));
+  measuring = false;
+
+  if (timestamps.length < 2) return 0;
+  final elapsed = timestamps.last - timestamps.first;
+  return (timestamps.length - 1) *
+      Duration.microsecondsPerSecond /
+      elapsed.inMicroseconds;
+}
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('FlutterRefreshRateControl Integration Tests', () {
     late FlutterRefreshRateControl plugin;
-    final bool isSupported = Platform.isAndroid || Platform.isIOS;
+    final bool isSupported =
+        Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
 
     setUp(() {
       plugin = FlutterRefreshRateControl();
@@ -34,7 +64,10 @@ void main() {
       expect(version?.isNotEmpty, true);
 
       if (isSupported) {
-        expect(version, anyOf(contains('Android'), contains('iOS')));
+        expect(
+          version,
+          anyOf(contains('Android'), contains('iOS'), contains('macOS')),
+        );
       } else {
         expect(version, contains('Unsupported platform:'));
       }
@@ -181,10 +214,52 @@ void main() {
         await Future.delayed(const Duration(milliseconds: 10));
       }
     });
+
+    // This is the test that shows whether the plugin does anything on the
+    // device it runs on. Simulators and emulators are 60Hz, so it can only
+    // prove something on real high refresh rate hardware.
+    testWidgets('measured frame rate reaches the display maximum', (
+      WidgetTester tester,
+    ) async {
+      // Let the framework schedule its own frames, like a real app does
+      final originalFramePolicy = binding.framePolicy;
+      binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+      addTearDown(() => binding.framePolicy = originalFramePolicy);
+
+      await tester.pumpWidget(MaterialApp(home: FPSTestWidget(plugin: plugin)));
+
+      final double before = await measureFps(tester);
+      final bool requested = await plugin.requestHighRefreshRate();
+      final double during = await measureFps(tester);
+      final Map<String, dynamic> info = await plugin.getRefreshRateInfo();
+      await plugin.stopHighRefreshRate();
+      final double after = await measureFps(tester);
+
+      final num? maximum = info['maximumFramesPerSecond'] as num?;
+      debugPrint(
+        'Measured FPS: before request ${before.toStringAsFixed(1)}, '
+        'while requested ${during.toStringAsFixed(1)}, '
+        'after stop ${after.toStringAsFixed(1)} '
+        '(requested: $requested, display maximum: $maximum)',
+      );
+
+      expect(before, greaterThan(0));
+      if (requested && maximum != null && maximum > 60) {
+        expect(
+          during,
+          greaterThan(maximum * 0.9),
+          reason:
+              'The display supports ${maximum}Hz but Flutter only got '
+              '${during.toStringAsFixed(1)} FPS while high refresh rate was '
+              'requested. Check low power mode and the system display '
+              'settings (e.g. Smooth Display, or a fixed refresh rate).',
+        );
+      }
+    });
   });
 }
 
-/// A test widget that monitors FPS similar to the FPSoverlay in liblsl_timing
+/// A test widget that keeps rendering and shows the FPS counter of the example app
 class FPSTestWidget extends StatefulWidget {
   final FlutterRefreshRateControl plugin;
 
@@ -195,63 +270,12 @@ class FPSTestWidget extends StatefulWidget {
 }
 
 class _FPSTestWidgetState extends State<FPSTestWidget> {
-  final ValueNotifier<int> _fps = ValueNotifier(0);
-  double _reportedFps = 0;
-  int _frameCount = 0;
-  DateTime _lastUpdate = DateTime.now();
-  final List<double> _fpsHistory = List<double>.filled(10, 0.0);
-  final Completer<void> _fpsCompleter = Completer<void>();
-  late final Display _display;
   Map<String, dynamic> _refreshRateInfo = {};
 
   @override
   void initState() {
     super.initState();
-    _display = WidgetsBinding.instance.platformDispatcher.views.first.display;
-    _startFPSTimer();
     _updateRefreshRateInfo();
-  }
-
-  @override
-  void dispose() {
-    _fps.dispose();
-    _fpsCompleter.complete();
-    super.dispose();
-  }
-
-  void _startFPSTimer() {
-    WidgetsBinding.instance.scheduleFrameCallback((Duration timeStamp) {
-      if (_fpsCompleter.isCompleted) return;
-      _frameCallback(timeStamp);
-    }, scheduleNewFrame: true);
-  }
-
-  void _frameCallback(Duration _) {
-    if (_fpsCompleter.isCompleted) return;
-
-    final now = DateTime.now();
-    final elapsed = now.difference(_lastUpdate).inMilliseconds;
-    _lastUpdate = now;
-
-    _frameCount++;
-    if (elapsed > 0) {
-      final index = _frameCount % _fpsHistory.length;
-      _fpsHistory[index] = (1000 / elapsed);
-
-      if (index == _fpsHistory.length - 1) {
-        final averageFps =
-            _fpsHistory.reduce((a, b) => a + b) / _fpsHistory.length;
-        _fps.value = averageFps.round();
-      }
-    }
-
-    _reportedFps = _display.refreshRate;
-
-    WidgetsBinding.instance.scheduleFrameCallback(
-      _frameCallback,
-      rescheduling: true,
-      scheduleNewFrame: true,
-    );
   }
 
   Future<void> _updateRefreshRateInfo() async {
@@ -283,6 +307,9 @@ class _FPSTestWidgetState extends State<FPSTestWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text('Refresh Rate Control Test'),
+                const SizedBox(height: 20),
+                // Repaints every frame, so there is always something to draw
+                const CircularProgressIndicator(),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
@@ -324,27 +351,20 @@ class _FPSTestWidgetState extends State<FPSTestWidget> {
           Positioned(
             top: 10,
             right: 10,
-            child: ValueListenableBuilder<int>(
-              valueListenable: _fps,
-              builder: (context, fps, _) {
-                return Container(
-                  key: const Key('fps_text'),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'FPS: $fps\nReported: ${_reportedFps.toStringAsFixed(1)}',
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                );
-              },
+            child: Container(
+              key: const Key('fps_text'),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const FpsCounter(
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontFamily: 'monospace',
+                ),
+              ),
             ),
           ),
         ],

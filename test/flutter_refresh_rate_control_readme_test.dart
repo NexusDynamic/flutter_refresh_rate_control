@@ -26,7 +26,7 @@ void main() {
     print('Platform: ${info['platform']}');
     print('Supported: ${info['supported']}');
 
-    // Android and iOS only:
+    // Android, iOS and macOS only:
     if (info['supported'] == true) {
       print('Current refresh rate: ${info['currentRefreshRate']}');
       print('Maximum refresh rate: ${info['maximumFramesPerSecond']}');

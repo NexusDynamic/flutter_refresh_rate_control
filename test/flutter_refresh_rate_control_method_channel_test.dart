@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_refresh_rate_control/flutter_refresh_rate_control_method_channel.dart';
@@ -13,11 +12,12 @@ void main() {
     'com.zeyus.flutter_refresh_rate_control/manage',
   );
 
-  final bool isSupported = Platform.isAndroid || Platform.isIOS;
+  final List<MethodCall> calls = [];
 
-  setUp(() {
+  void mockNativePlugin() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+          calls.add(methodCall);
           switch (methodCall.method) {
             case 'getPlatformVersion':
               return '42';
@@ -35,55 +35,14 @@ void main() {
               return null;
           }
         });
-  });
+  }
 
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
-  });
-
-  test('getPlatformVersion', () async {
-    final result = await platform.getPlatformVersion();
-    if (isSupported) {
-      expect(result, '42');
-    } else {
-      expect(result, contains('Unsupported platform:'));
-    }
-  });
-
-  test('requestHighRefreshRate', () async {
-    final result = await platform.requestHighRefreshRate();
-    if (isSupported) {
-      expect(result, true);
-    } else {
-      expect(result, false);
-    }
-  });
-
-  test('stopHighRefreshRate', () async {
-    final result = await platform.stopHighRefreshRate();
-    if (isSupported) {
-      expect(result, true);
-    } else {
-      expect(result, false);
-    }
-  });
-
-  test('getRefreshRateInfo', () async {
-    final info = await platform.getRefreshRateInfo();
-    expect(info, isA<Map<String, dynamic>>());
-    if (isSupported) {
-      expect(info['maximumFramesPerSecond'], 120);
-      expect(info['currentRefreshRate'], 60.0);
-      expect(info['highRefreshRateEnabled'], false);
-    } else {
-      expect(info['platform'], Platform.operatingSystem);
-      expect(info['supported'], false);
-      expect(
-        info['message'],
-        'Refresh rate control not supported on this platform',
-      );
-    }
+    platform.setExceptionOnUnsupportedPlatform(false);
+    debugDefaultTargetPlatformOverride = null;
+    calls.clear();
   });
 
   test('exceptionOnUnsupportedPlatform setter', () {
@@ -94,73 +53,131 @@ void main() {
     expect(platform.exceptionOnUnsupportedPlatform, false);
   });
 
-  group('unsupported platform with exceptions enabled', () {
+  for (final supported in [
+    TargetPlatform.android,
+    TargetPlatform.iOS,
+    TargetPlatform.macOS,
+  ]) {
+    group('supported platform $supported', () {
+      setUp(() {
+        debugDefaultTargetPlatformOverride = supported;
+        mockNativePlugin();
+      });
+
+      test('getPlatformVersion', () async {
+        expect(await platform.getPlatformVersion(), '42');
+      });
+
+      test('requestHighRefreshRate', () async {
+        expect(await platform.requestHighRefreshRate(), true);
+      });
+
+      test('stopHighRefreshRate', () async {
+        expect(await platform.stopHighRefreshRate(), true);
+        expect(calls.single.arguments, {'force': false});
+      });
+
+      test('stopHighRefreshRate with force', () async {
+        expect(await platform.stopHighRefreshRate(force: true), true);
+        expect(calls.single.arguments, {'force': true});
+      });
+
+      test('getRefreshRateInfo', () async {
+        final info = await platform.getRefreshRateInfo();
+        expect(info['platform'], supported.name.toLowerCase());
+        expect(info['supported'], true);
+        expect(info['maximumFramesPerSecond'], 120);
+        expect(info['currentRefreshRate'], 60.0);
+        expect(info['currentFramesPerSecond'], 60.0);
+        expect(info['highRefreshRateEnabled'], false);
+      });
+
+      test('does not throw with exceptions enabled', () async {
+        platform.setExceptionOnUnsupportedPlatform(true);
+        expect(await platform.requestHighRefreshRate(), true);
+      });
+    });
+  }
+
+  group('supported platform without the native plugin registered', () {
     setUp(() {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    });
+
+    test('methods fall back to no-op results', () async {
+      expect(await platform.getPlatformVersion(), isNull);
+      expect(await platform.requestHighRefreshRate(), false);
+      expect(await platform.stopHighRefreshRate(), false);
+      expect(await platform.stopHighRefreshRate(force: true), false);
+      expect(await platform.getRefreshRateInfo(), {
+        'platform': 'android',
+        'supported': true,
+      });
+    });
+
+    test('methods throw with exceptions enabled', () async {
       platform.setExceptionOnUnsupportedPlatform(true);
-    });
-
-    tearDown(() {
-      platform.setExceptionOnUnsupportedPlatform(false);
-    });
-
-    test('getPlatformVersion throws on unsupported platform', () async {
-      if (!isSupported) {
-        expect(
-          () async => await platform.getPlatformVersion(),
-          throwsA(
-            isA<PlatformException>().having(
-              (e) => e.code,
-              'code',
-              'UNSUPPORTED_PLATFORM',
-            ),
-          ),
-        );
-      }
-    });
-
-    test('requestHighRefreshRate throws on unsupported platform', () async {
-      if (!isSupported) {
-        expect(
-          () async => await platform.requestHighRefreshRate(),
-          throwsA(
-            isA<PlatformException>().having(
-              (e) => e.code,
-              'code',
-              'UNSUPPORTED_PLATFORM',
-            ),
-          ),
-        );
-      }
-    });
-
-    test('stopHighRefreshRate throws on unsupported platform', () async {
-      if (!isSupported) {
-        expect(
-          () async => await platform.stopHighRefreshRate(),
-          throwsA(
-            isA<PlatformException>().having(
-              (e) => e.code,
-              'code',
-              'UNSUPPORTED_PLATFORM',
-            ),
-          ),
-        );
-      }
-    });
-
-    test('getRefreshRateInfo throws on unsupported platform', () async {
-      if (!isSupported) {
-        expect(
-          () async => await platform.getRefreshRateInfo(),
-          throwsA(
-            isA<PlatformException>().having(
-              (e) => e.code,
-              'code',
-              'UNSUPPORTED_PLATFORM',
-            ),
-          ),
-        );
-      }
+      await expectLater(
+        platform.requestHighRefreshRate(),
+        throwsA(isA<MissingPluginException>()),
+      );
     });
   });
+
+  for (final unsupported in [
+    TargetPlatform.windows,
+    TargetPlatform.linux,
+    TargetPlatform.fuchsia,
+  ]) {
+    group('unsupported platform $unsupported', () {
+      setUp(() {
+        debugDefaultTargetPlatformOverride = unsupported;
+        // Must never be reached on an unsupported platform
+        mockNativePlugin();
+      });
+
+      test('getPlatformVersion', () async {
+        expect(
+          await platform.getPlatformVersion(),
+          'Unsupported platform: ${unsupported.name.toLowerCase()}',
+        );
+      });
+
+      test('requestHighRefreshRate', () async {
+        expect(await platform.requestHighRefreshRate(), false);
+      });
+
+      test('stopHighRefreshRate', () async {
+        expect(await platform.stopHighRefreshRate(), false);
+      });
+
+      test('getRefreshRateInfo', () async {
+        final info = await platform.getRefreshRateInfo();
+        expect(info['platform'], unsupported.name.toLowerCase());
+        expect(info['supported'], false);
+        expect(
+          info['message'],
+          'Refresh rate control not supported on this platform',
+        );
+        // Never the mocked native values
+        expect(info.containsKey('maximumFramesPerSecond'), false);
+        expect(info['currentRefreshRate'], info['currentFramesPerSecond']);
+      });
+
+      test('all methods throw with exceptions enabled', () async {
+        platform.setExceptionOnUnsupportedPlatform(true);
+        final throwsUnsupported = throwsA(
+          isA<PlatformException>().having(
+            (e) => e.code,
+            'code',
+            'UNSUPPORTED_PLATFORM',
+          ),
+        );
+        await expectLater(platform.getPlatformVersion(), throwsUnsupported);
+        await expectLater(platform.requestHighRefreshRate(), throwsUnsupported);
+        await expectLater(platform.stopHighRefreshRate(), throwsUnsupported);
+        await expectLater(platform.getRefreshRateInfo(), throwsUnsupported);
+      });
+    });
+  }
 }

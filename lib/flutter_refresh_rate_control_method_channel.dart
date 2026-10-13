@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -12,7 +10,7 @@ class MethodChannelFlutterRefreshRateControl
 
   /// Indicates whether an exception should be thrown on unsupported platforms.
   /// If set to true, an exception will be thrown when trying to use refresh rate
-  /// control on a platform that does not support it (e.g., web, desktop).
+  /// control on a platform that does not support it (e.g., web, Windows, Linux).
   @override
   bool get exceptionOnUnsupportedPlatform => _exceptionOnUnsupportedPlatform;
 
@@ -24,32 +22,60 @@ class MethodChannelFlutterRefreshRateControl
 
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final MethodChannel? methodChannel =
-      (Platform.isAndroid || Platform.isIOS)
-          ? const MethodChannel('com.zeyus.flutter_refresh_rate_control/manage')
-          : null;
+  final MethodChannel methodChannel = const MethodChannel(
+    'com.zeyus.flutter_refresh_rate_control/manage',
+  );
+
+  /// The current platform as a lowercase string, e.g. "android", "ios", "web".
+  String get _platformName =>
+      kIsWeb ? 'web' : defaultTargetPlatform.name.toLowerCase();
+
+  bool get _isSupported =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS);
 
   bool _checkPlatform() {
-    if (exceptionOnUnsupportedPlatform && methodChannel == null) {
+    if (exceptionOnUnsupportedPlatform && !_isSupported) {
       throw PlatformException(
         code: 'UNSUPPORTED_PLATFORM',
         message:
-            'Refresh rate control is only supported on Android and iOS platforms',
-        details: 'Current platform: ${Platform.operatingSystem}',
+            'Refresh rate control is only supported on Android, iOS and macOS platforms',
+        details: 'Current platform: $_platformName',
       );
     }
-    return methodChannel != null;
+    return _isSupported;
+  }
+
+  /// Invokes [method] on the native side.
+  ///
+  /// Returns null if the native plugin is not registered (e.g. in widget
+  /// tests), unless [exceptionOnUnsupportedPlatform] is set.
+  Future<T?> _invoke<T>(String method, [Object? arguments]) async {
+    try {
+      return await methodChannel.invokeMethod<T>(method, arguments);
+    } on MissingPluginException {
+      if (exceptionOnUnsupportedPlatform) rethrow;
+      return null;
+    }
+  }
+
+  /// The refresh rate Flutter reports for the display, if there is one.
+  double? get _displayRefreshRate {
+    try {
+      return PlatformDispatcher.instance.views.firstOrNull?.display.refreshRate;
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
   Future<String?> getPlatformVersion() async {
     if (!_checkPlatform()) {
-      return 'Unsupported platform: ${Platform.operatingSystem}';
+      return 'Unsupported platform: $_platformName';
     }
-    final version = await methodChannel!.invokeMethod<String>(
-      'getPlatformVersion',
-    );
-    return version;
+    return _invoke<String>('getPlatformVersion');
   }
 
   @override
@@ -57,38 +83,36 @@ class MethodChannelFlutterRefreshRateControl
     if (!_checkPlatform()) {
       return false;
     }
-    final result = await methodChannel!.invokeMethod<bool>(
-      'requestHighRefreshRate',
-    );
-    return result ?? false;
+    return await _invoke<bool>('requestHighRefreshRate') ?? false;
   }
 
   @override
-  Future<bool> stopHighRefreshRate() async {
+  Future<bool> stopHighRefreshRate({bool force = false}) async {
     if (!_checkPlatform()) {
       return false;
     }
-    final result = await methodChannel!.invokeMethod<bool>(
-      'stopHighRefreshRate',
-    );
-    return result ?? false;
+    return await _invoke<bool>('stopHighRefreshRate', {'force': force}) ??
+        false;
   }
 
   @override
   Future<Map<String, dynamic>> getRefreshRateInfo() async {
     if (!_checkPlatform()) {
+      // Nothing can be requested here, but Flutter still knows the rate
+      final refreshRate = _displayRefreshRate;
       return {
-        'platform': Platform.operatingSystem,
+        'platform': _platformName,
         'supported': false,
         'message': 'Refresh rate control not supported on this platform',
+        if (refreshRate != null) ...{
+          'currentRefreshRate': refreshRate,
+          'currentFramesPerSecond': refreshRate,
+        },
       };
     }
-    final defaultResult = {
-      'platform': Platform.operatingSystem,
-      'supported': true,
-    };
+    final defaultResult = {'platform': _platformName, 'supported': true};
     final result =
-        (await methodChannel!.invokeMethod<Map<dynamic, dynamic>>(
+        (await _invoke<Map<dynamic, dynamic>>(
           'getRefreshRateInfo',
         ))?.cast<String, dynamic>();
     if (result == null) {

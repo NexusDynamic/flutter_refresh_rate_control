@@ -45,7 +45,7 @@ abstract class FlutterRefreshRateControlPlatform extends PlatformInterface {
     );
   }
 
-  Future<bool> stopHighRefreshRate() {
+  Future<bool> stopHighRefreshRate({bool force = false}) {
     throw UnimplementedError('stopHighRefreshRate() has not been implemented.');
   }
 
